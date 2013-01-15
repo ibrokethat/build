@@ -1,0 +1,13 @@
+define(
+
+  "$name",
+
+  [$requires],
+
+  function(require, exports, module) {
+
+    $body
+
+  }
+
+);
