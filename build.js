@@ -269,6 +269,7 @@ function createTransportFile(file) {
   }
   else {
     start = start - 4;
+    t = t.replace("$requires", '');
   }
 
   //  push the start position down. ensures line numbers match
@@ -311,7 +312,7 @@ function buildPackage (packageFile) {
 
 
 /*
-  @description extracts the requires
+  @description extracts the required modules from the ast
   @param       {File} file
   @return      {File} file
 */
@@ -323,17 +324,22 @@ function extractRequires (file) {
 }
 
 
+/*
+  @description extracts the required modules from the html
+  @param       {File} file
+  @return      {File} file
+*/
 function extractViewRequires (file) {
 
   var controllers = map((file.data.match(/data-controller="(\w+)"/g) || []), function (controller) {
     return "../controllers/" + (/data-controller="(\w+)"/.exec(controller)[1]);
   });
 
-  var components = map((file.data.match(/data-component="(\w+)"/g) || []), function (component) {
-    return "./" + (/data-component="(\w+)"/.exec(component)[1]);
+  var views = map((file.data.match(/data-view="(\w+)"/g) || []), function (view) {
+    return "./" + (/data-view="(\w+)"/.exec(view)[1]) + ".html";
   });
 
-  file.requires = controllers.concat(components);
+  file.requires = controllers.concat(views);
 
   return file;
 
@@ -357,9 +363,9 @@ function buildModuleDependencies (file) {
         buildDependency("node_modules/" + name + "/package.json");
         break;
 
-      case /^[\.].+Component$/.test(name):
+      case /^[\.].+\.html$/.test(name):
 
-        buildView(resolvePath(file.name, name) + ".html");
+        buildView(resolvePath(file.name, name));
         break;
 
       case /^[\.]/.test(name):
